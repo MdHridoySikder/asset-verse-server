@@ -26,6 +26,29 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const db = client.db("asset-verse-server");
+    const assetscollection = db.collection("assets-collection");
+
+    // assets-collection api
+
+    app.get("/assets-collection", async (req, res) => {
+      const query = {};
+
+      const options = { sort: { createdAt: -1 } };
+
+      const cursor = assetscollection.find(query, options);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/assets-collection", async (req, res) => {
+      const assets = req.body;
+      assets.createdAt = new Date();
+      const result = await assetscollection.insertOne(assets);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
